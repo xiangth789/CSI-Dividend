@@ -1,0 +1,54 @@
+name: Update and deploy dividend-low-vol dashboard
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 北京时间周一至周五 09:00-15:55，每5分钟尝试更新
+    - cron: "*/5 1-7 * * 1-5"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -U akshare pandas numpy
+
+      - name: Update market data
+        run: python updater.py
+
+      - name: Commit fresh data
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data.json history_cache.json || true
+          git diff --cached --quiet || git commit -m "auto update market data"
+          git push
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: "."
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
