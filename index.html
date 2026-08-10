@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17766f">
+<title>中证红利低波50 · 综合分析</title>
+<style>
+body{margin:0;background:#f3f1eb;color:#17322d;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:680px;margin:auto;padding:14px 12px 28px}
+.top{display:flex;justify-content:space-between;gap:8px}
+h1{font-size:21px;margin:0 0 4px}
+.sub,.note{font-size:10px;color:#71817d}
+.date{font-size:11px;color:#17766f;font-weight:700;text-align:right}
+.card{background:white;border:1px solid #dce1de;border-radius:16px;padding:13px;margin-top:11px}
+.title{font-weight:900;border-left:5px solid #17766f;padding-left:8px;margin-bottom:10px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{background:#fafbf8;border:1px solid #e4e8e5;border-radius:11px;padding:10px}
+.metric span{display:block;font-size:9px;color:#71817d}
+.metric b{display:block;font-size:19px;margin-top:3px}
+.hero{display:grid;grid-template-columns:112px 1fr;gap:12px;align-items:center;margin-bottom:10px}
+.circle{width:108px;height:108px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#17766f 0deg,#dfe6e3 0);box-shadow:inset 0 0 0 10px #fff}
+.circle b{font-size:31px}.circle small{display:block;font-size:8px;color:#71817d;text-align:center}
+.grade{font-size:23px;font-weight:900}
+.status{display:inline-block;padding:5px 8px;background:#eaf4f2;color:#17766f;border-radius:999px;font-size:10px;font-weight:800}
+.ranges{display:flex;flex-direction:column;gap:6px}
+.range{display:grid;grid-template-columns:65px 1fr;gap:8px;padding:9px;border:1px solid #e2e6e3;border-radius:11px;background:#fafbf8}
+.range b{font-size:12px}.range span{font-size:11px}.range.active{background:#e8f5f2;border-color:#57a89f}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip,select{background:#fff;border:1px solid #d8dfdb;border-radius:999px;padding:7px 10px;font-size:11px}
+.chip.active{background:#17766f;color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.stock{border-radius:15px;padding:11px;color:#fff;min-height:172px}
+.d{background:#176f69}.g{background:#32988f}.m{background:#969e9b}.o{background:#c56d58}.r{background:#a9384b}
+.name{font-size:17px;font-weight:900}.code,.small{font-size:9px;opacity:.92}.big{font-size:25px;font-weight:900;line-height:1}
+.row{display:flex;justify-content:space-between;gap:6px;align-items:flex-end;margin-top:8px}.label{font-size:9px;opacity:.9}
+.dividend{font-size:16px;font-weight:900}
+@media(max-width:360px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top">
+  <div><h1>中证红利低波50</h1><div class="sub">H30269 · 整体 + 50只成分股 · 5分钟刷新</div></div>
+  <div class="date"><div id="dataDate">数据日 --</div><div id="updated">更新 --</div></div>
+</div>
+
+<div class="card">
+  <div class="title">01 · 红利低波50整体</div>
+  <div class="hero">
+    <div class="circle" id="circle"><div><b id="idxScore">--</b><small>综合参考评分</small></div></div>
+    <div>
+      <div class="grade" id="idxAdvice">--</div>
+      <div class="note" style="margin-top:6px">综合评分 = 价格位置75% + 股息率25%；股息率缺失时自动退回价格位置评分。</div>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><span>H30269 最新点位</span><b id="idxClose">--</b></div>
+    <div class="metric"><span>整体股息率</span><b id="idxDividend">--</b></div>
+    <div class="metric"><span>年线偏离率</span><b id="idxAnnual">--</b></div>
+    <div class="metric"><span>52周高点回撤</span><b id="idxDD">--</b></div>
+    <div class="metric"><span>250日均线</span><b id="idxMA">--</b></div>
+    <div class="metric"><span>位置评分</span><b id="idxPosScore">--</b></div>
+  </div>
+  <div style="margin-top:9px"><span class="status" id="status">正在读取云端数据…</span></div>
+</div>
+
+<div class="card">
+  <div class="title">02 · 评分区间 / 操作建议</div>
+  <div class="ranges" id="ranges">
+    <div class="range" data-min="80"><b>80–100</b><span>强烈买入</span></div>
+    <div class="range" data-min="65"><b>65–79</b><span>建议买入</span></div>
+    <div class="range" data-min="45"><b>45–64</b><span>持有 / 观察</span></div>
+    <div class="range" data-min="30"><b>30–44</b><span>建议减仓</span></div>
+    <div class="range" data-min="0"><b>0–29</b><span>建议卖出 / 回避</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="title">03 · 50只成分股</div>
+  <div class="tools">
+    <button class="chip active" data-f="all">全部</button>
+    <button class="chip" data-f="buy">建议买入</button>
+    <button class="chip" data-f="strong">强烈买入</button>
+    <button class="chip" data-f="below">低于年线</button>
+    <button class="chip" data-f="deep">低于年线5%+</button>
+    <button class="chip" data-f="highdiv">高股息≥5%</button>
+  </div>
+  <select id="sort">
+    <option value="score">按综合评分</option>
+    <option value="dividend">按股息率</option>
+    <option value="annual">按年线偏离</option>
+    <option value="dd">按回撤</option>
+    <option value="mom">按60日动量</option>
+  </select>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="card">
+  <div class="title">04 · 数据口径</div>
+  <div class="note">
+    指数股息率优先使用中证指数官方估值接口的股息率数据。个股股息率按最近365天已实施现金分红合计 / 最新股价计算；取不到真实分红数据时显示“--”，不会使用固定示例值。<br><br>
+    综合参考评分目前用于筛选，不等同于保证收益：价格位置75% + 股息率25%。
+  </div>
+</div>
+</div>
+
+<script>
+let DATA=null,filter="all";
+const signed=(x,d=2)=>x==null?"--":(x>=0?"+":"")+Number(x).toFixed(d)+"%";
+const pct=(x,d=2)=>x==null?"--":Number(x).toFixed(d)+"%";
+const cls=s=>s>=80?"d":s>=65?"g":s>=45?"m":s>=30?"o":"r";
+const adv=s=>s>=80?"强烈买入":s>=65?"建议买入":s>=45?"持有 / 观察":s>=30?"建议减仓":"建议卖出 / 回避";
+
+function highlightRange(score){
+ document.querySelectorAll(".range").forEach(x=>x.classList.remove("active"));
+ let el;
+ if(score>=80)el=document.querySelector('[data-min="80"]');
+ else if(score>=65)el=document.querySelector('[data-min="65"]');
+ else if(score>=45)el=document.querySelector('[data-min="45"]');
+ else if(score>=30)el=document.querySelector('[data-min="30"]');
+ else el=document.querySelector('[data-min="0"]');
+ if(el)el.classList.add("active");
+}
+
+function render(){
+ if(!DATA)return;
+ const i=DATA.index||{};
+ const score=Number(i.score ?? i.position_score ?? 0);
+ idxScore.textContent=score||"--";
+ idxAdvice.textContent=i.advice||adv(score);
+ idxClose.textContent=i.close==null?"--":Number(i.close).toFixed(2);
+ idxDividend.textContent=pct(i.dividend_yield);
+ idxAnnual.textContent=signed(i.annual);
+ idxDD.textContent=i.dd==null?"--":"-"+Number(i.dd).toFixed(2)+"%";
+ idxMA.textContent=i.ma250==null?"--":Number(i.ma250).toFixed(2);
+ idxPosScore.textContent=i.position_score==null?"--":i.position_score;
+ circle.style.background=`conic-gradient(#17766f ${Math.max(0,Math.min(100,score))*3.6}deg,#dfe6e3 0)`;
+ highlightRange(score);
+
+ dataDate.textContent="数据日 "+(DATA.market_date||"--");
+ updated.textContent="更新 "+(DATA.updated_at||"--");
+ status.textContent="云端数据正常 · "+(DATA.stocks?.length||0)+"只";
+
+ let a=[...(DATA.stocks||[])];
+ if(filter==="buy")a=a.filter(x=>Number(x.score)>=65&&Number(x.score)<80);
+ if(filter==="strong")a=a.filter(x=>Number(x.score)>=80);
+ if(filter==="below")a=a.filter(x=>x.annual<0);
+ if(filter==="deep")a=a.filter(x=>x.annual<=-5);
+ if(filter==="highdiv")a=a.filter(x=>x.dividend_yield!=null&&x.dividend_yield>=5);
+
+ const s=sort.value;
+ a.sort((x,y)=>{
+   if(s==="score")return Number(y.score)-Number(x.score);
+   if(s==="dividend")return Number(y.dividend_yield??-1)-Number(x.dividend_yield??-1);
+   if(s==="dd")return Number(y.dd)-Number(x.dd);
+   if(s==="mom")return Number(y.mom)-Number(x.mom);
+   return Number(x.annual)-Number(y.annual);
+ });
+
+ grid.innerHTML=a.map(x=>`
+ <div class="stock ${cls(Number(x.score))}">
+   <div class="name">${x.name}</div>
+   <div class="code">${x.code}</div>
+   <div class="row">
+     <div><div class="label">最新价</div><div class="big">${Number(x.close).toFixed(2)}</div></div>
+     <div style="text-align:right"><div class="label">综合评分</div><div class="big">${x.score}</div></div>
+   </div>
+   <div class="row">
+     <div><div class="label">TTM股息率</div><div class="dividend">${pct(x.dividend_yield)}</div></div>
+     <div style="text-align:right"><div class="label">操作建议</div><b>${x.advice||adv(Number(x.score))}</b></div>
+   </div>
+   <div class="row">
+     <div><div class="label">年线偏离</div><b>${signed(x.annual)}</b></div>
+     <div style="text-align:right"><div class="label">52周回撤</div><b>-${Number(x.dd).toFixed(1)}%</b></div>
+   </div>
+   <div class="row">
+     <div><div class="label">位置评分</div><b>${x.position_score??"--"}</b></div>
+     <div style="text-align:right"><div class="label">20日波动</div><b>${Number(x.vol).toFixed(1)}%</b></div>
+   </div>
+ </div>`).join("");
+}
+
+async function load(){
+ try{
+   const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
+   if(!r.ok)throw 0;
+   DATA=await r.json();
+   render();
+ }catch(e){
+   status.textContent="云端数据尚未生成 / 更新失败";
+ }
+}
+
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
+ b.classList.add("active");
+ filter=b.dataset.f;
+ render();
+});
+sort.onchange=render;
+load();
+setInterval(load,5*60*1000);
+</script>
+</body>
+</html>
