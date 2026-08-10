@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "updated_at": "2026-08-10 22:52:48",
+  "updated_at": "2026-08-10 23:14:25",
   "market_date": "2026-08-10",
   "index": {
     "close": 10753.99,
@@ -8,7 +8,11 @@
     "annual": -4.196774911583267,
     "dd": 10.31061878558097,
     "mom": -2.670367742355906,
-    "vol": 17.53786223620182
+    "vol": 17.53786223620182,
+    "dividend_yield": 4.5,
+    "position_score": 73,
+    "score": 74,
+    "advice": "建议买入"
   },
   "stocks": [
     {
@@ -21,7 +25,10 @@
       "code": "000001",
       "name": "平安银行",
       "market": "SZ",
-      "score": 68
+      "dividend_yield": 5.279007971656333,
+      "position_score": 68,
+      "score": 72,
+      "advice": "建议买入"
     },
     {
       "close": 85.3,
@@ -33,7 +40,10 @@
       "code": "000333",
       "name": "美的集团",
       "market": "SZ",
-      "score": 55
+      "dividend_yield": 5.041031652989449,
+      "position_score": 55,
+      "score": 62,
+      "advice": "持有 / 观察"
     },
     {
       "close": 13.25,
@@ -45,7 +55,10 @@
       "code": "000429",
       "name": "粤高速A",
       "market": "SZ",
-      "score": 56
+      "dividend_yield": 4.558490566037736,
+      "position_score": 56,
+      "score": 61,
+      "advice": "持有 / 观察"
     },
     {
       "close": 40.67,
@@ -57,7 +70,10 @@
       "code": "000651",
       "name": "格力电器",
       "market": "SZ",
-      "score": 67
+      "dividend_yield": 7.376444553725105,
+      "position_score": 67,
+      "score": 74,
+      "advice": "建议买入"
     },
     {
       "close": 13.93,
@@ -69,7 +85,10 @@
       "code": "000708",
       "name": "中信特钢",
       "market": "SZ",
-      "score": 65
+      "dividend_yield": 4.636004307250539,
+      "position_score": 65,
+      "score": 68,
+      "advice": "建议买入"
     },
     {
       "close": 7.3,
@@ -81,7 +100,10 @@
       "code": "002233",
       "name": "塔牌集团",
       "market": "SZ",
-      "score": 52
+      "dividend_yield": 6.575342465753424,
+      "position_score": 52,
+      "score": 63,
+      "advice": "持有 / 观察"
     },
     {
       "close": 5.86,
@@ -93,7 +115,10 @@
       "code": "002469",
       "name": "三维化学",
       "market": "SZ",
-      "score": 33
+      "dividend_yield": 5.1194539249146755,
+      "position_score": 33,
+      "score": 46,
+      "advice": "持有 / 观察"
     },
     {
       "close": 3.98,
@@ -105,7 +130,10 @@
       "code": "002807",
       "name": "江阴银行",
       "market": "SZ",
-      "score": 74
+      "dividend_yield": 5.527638190954775,
+      "position_score": 74,
+      "score": 77,
+      "advice": "建议买入"
     },
     {
       "close": 4.36,
@@ -117,7 +145,10 @@
       "code": "002839",
       "name": "张家港行",
       "market": "SZ",
-      "score": 72
+      "dividend_yield": 5.045871559633028,
+      "position_score": 72,
+      "score": 75,
+      "advice": "建议买入"
     },
     {
       "close": 8.35,
@@ -129,7 +160,10 @@
       "code": "002966",
       "name": "苏州银行",
       "market": "SZ",
-      "score": 62
+      "dividend_yield": 4.311377245508982,
+      "position_score": 62,
+      "score": 65,
+      "advice": "建议买入"
     },
     {
       "close": 18.49,
@@ -141,7 +175,10 @@
       "code": "600007",
       "name": "中国国贸",
       "market": "SH",
-      "score": 67
+      "dividend_yield": 5.786911844240129,
+      "position_score": 67,
+      "score": 72,
+      "advice": "建议买入"
     },
     {
       "close": 6.76,
@@ -153,7 +190,10 @@
       "code": "600015",
       "name": "华夏银行",
       "market": "SH",
-      "score": 74
+      "dividend_yield": 6.21301775147929,
+      "position_score": 74,
+      "score": 79,
+      "advice": "建议买入"
     },
     {
       "close": 3.53,
@@ -165,7 +205,10 @@
       "code": "600016",
       "name": "民生银行",
       "market": "SH",
-      "score": 72
+      "dividend_yield": 5.354107648725213,
+      "position_score": 72,
+      "score": 75,
+      "advice": "建议买入"
     },
     {
       "close": 38.91,
@@ -177,7 +220,10 @@
       "code": "600036",
       "name": "招商银行",
       "market": "SH",
-      "score": 72
+      "dividend_yield": 5.181187355435621,
+      "position_score": 72,
+      "score": 75,
+      "advice": "建议买入"
     },
     {
       "close": 10.7,
@@ -189,7 +235,10 @@
       "code": "600350",
       "name": "山东高速",
       "market": "SH",
-      "score": 59
+      "dividend_yield": 3.9252336448598135,
+      "position_score": 59,
+      "score": 59,
+      "advice": "持有 / 观察"
     },
     {
       "close": 8.99,
@@ -201,7 +250,10 @@
       "code": "600461",
       "name": "洪城环境",
       "market": "SH",
-      "score": 66
+      "dividend_yield": 5.194660734149054,
+      "position_score": 66,
+      "score": 71,
+      "advice": "建议买入"
     },
     {
       "close": 4.62,
@@ -213,7 +265,10 @@
       "code": "600502",
       "name": "安徽建工",
       "market": "SH",
-      "score": 61
+      "dividend_yield": 5.8441558441558445,
+      "position_score": 61,
+      "score": 67,
+      "advice": "建议买入"
     },
     {
       "close": 25.89,
@@ -225,7 +280,10 @@
       "code": "600566",
       "name": "济川药业",
       "market": "SH",
-      "score": 62
+      "dividend_yield": 6.720741599073,
+      "position_score": 62,
+      "score": 70,
+      "advice": "建议买入"
     },
     {
       "close": 13.96,
@@ -237,7 +295,10 @@
       "code": "600737",
       "name": "中粮糖业",
       "market": "SH",
-      "score": 60
+      "dividend_yield": 5.3724928366762175,
+      "position_score": 60,
+      "score": 66,
+      "advice": "建议买入"
     },
     {
       "close": 24.86,
@@ -249,7 +310,10 @@
       "code": "600750",
       "name": "华润江中",
       "market": "SH",
-      "score": 64
+      "dividend_yield": 5.551086082059534,
+      "position_score": 64,
+      "score": 69,
+      "advice": "建议买入"
     },
     {
       "close": 7.76,
@@ -261,7 +325,10 @@
       "code": "600757",
       "name": "长江传媒",
       "market": "SH",
-      "score": 74
+      "dividend_yield": 5.283505154639175,
+      "position_score": 74,
+      "score": 77,
+      "advice": "建议买入"
     },
     {
       "close": 17.55,
@@ -273,7 +340,10 @@
       "code": "600803",
       "name": "新奥股份",
       "market": "SH",
-      "score": 61
+      "dividend_yield": 6.495726495726497,
+      "position_score": 61,
+      "score": 70,
+      "advice": "建议买入"
     },
     {
       "close": 5.43,
@@ -285,7 +355,10 @@
       "code": "600820",
       "name": "隧道股份",
       "market": "SH",
-      "score": 70
+      "dividend_yield": 7.734806629834255,
+      "position_score": 70,
+      "score": 76,
+      "advice": "建议买入"
     },
     {
       "close": 4.71,
@@ -297,7 +370,10 @@
       "code": "600863",
       "name": "华能蒙电",
       "market": "SH",
-      "score": 47
+      "dividend_yield": 4.670912951167729,
+      "position_score": 47,
+      "score": 54,
+      "advice": "持有 / 观察"
     },
     {
       "close": 8.11,
@@ -309,7 +385,10 @@
       "code": "600873",
       "name": "梅花生物",
       "market": "SH",
-      "score": 45
+      "dividend_yield": 5.28360049321825,
+      "position_score": 45,
+      "score": 55,
+      "advice": "持有 / 观察"
     },
     {
       "close": 11.81,
@@ -321,7 +400,10 @@
       "code": "600919",
       "name": "江苏银行",
       "market": "SH",
-      "score": 51
+      "dividend_yield": 4.776460626587638,
+      "position_score": 51,
+      "score": 57,
+      "advice": "持有 / 观察"
     },
     {
       "close": 32.0,
@@ -333,7 +415,10 @@
       "code": "600938",
       "name": "中国海油",
       "market": "SH",
-      "score": 47
+      "dividend_yield": 3.57790625,
+      "position_score": 47,
+      "score": 50,
+      "advice": "持有 / 观察"
     },
     {
       "close": 96.7,
@@ -345,7 +430,10 @@
       "code": "600941",
       "name": "中国移动",
       "market": "SH",
-      "score": 72
+      "dividend_yield": 4.864219234746638,
+      "position_score": 72,
+      "score": 73,
+      "advice": "建议买入"
     },
     {
       "close": 11.25,
@@ -357,7 +445,10 @@
       "code": "601009",
       "name": "南京银行",
       "market": "SH",
-      "score": 73
+      "dividend_yield": 4.703555555555554,
+      "position_score": 73,
+      "score": 74,
+      "advice": "建议买入"
     },
     {
       "close": 6.46,
@@ -369,7 +460,10 @@
       "code": "601077",
       "name": "渝农商行",
       "market": "SH",
-      "score": 67
+      "dividend_yield": 4.967647058823529,
+      "position_score": 67,
+      "score": 69,
+      "advice": "建议买入"
     },
     {
       "close": 5.03,
@@ -381,7 +475,10 @@
       "code": "601169",
       "name": "北京银行",
       "market": "SH",
-      "score": 74
+      "dividend_yield": 5.526838966202782,
+      "position_score": 74,
+      "score": 77,
+      "advice": "建议买入"
     },
     {
       "close": 7.27,
@@ -393,7 +490,10 @@
       "code": "601187",
       "name": "厦门银行",
       "market": "SH",
-      "score": 71
+      "dividend_yield": 3.4387895460797804,
+      "position_score": 71,
+      "score": 68,
+      "advice": "建议买入"
     },
     {
       "close": 9.27,
@@ -405,7 +505,10 @@
       "code": "601229",
       "name": "上海银行",
       "market": "SH",
-      "score": 74
+      "dividend_yield": 5.609492988133765,
+      "position_score": 74,
+      "score": 77,
+      "advice": "建议买入"
     },
     {
       "close": 6.46,
@@ -417,7 +520,10 @@
       "code": "601288",
       "name": "农业银行",
       "market": "SH",
-      "score": 69
+      "dividend_yield": 3.862229102167183,
+      "position_score": 69,
+      "score": 67,
+      "advice": "建议买入"
     },
     {
       "close": 53.32,
@@ -429,7 +535,10 @@
       "code": "601318",
       "name": "中国平安",
       "market": "SH",
-      "score": 68
+      "dividend_yield": 5.0637659414853715,
+      "position_score": 68,
+      "score": 72,
+      "advice": "建议买入"
     },
     {
       "close": 6.9,
@@ -441,7 +550,10 @@
       "code": "601328",
       "name": "交通银行",
       "market": "SH",
-      "score": 72
+      "dividend_yield": 4.705797101449275,
+      "position_score": 72,
+      "score": 73,
+      "advice": "建议买入"
     },
     {
       "close": 9.39,
@@ -453,7 +565,10 @@
       "code": "601369",
       "name": "陕鼓动力",
       "market": "SH",
-      "score": 65
+      "dividend_yield": 3.301384451544196,
+      "position_score": 65,
+      "score": 64,
+      "advice": "持有 / 观察"
     },
     {
       "close": 7.53,
@@ -465,7 +580,10 @@
       "code": "601398",
       "name": "工商银行",
       "market": "SH",
-      "score": 71
+      "dividend_yield": 4.1208499335989375,
+      "position_score": 71,
+      "score": 72,
+      "advice": "建议买入"
     },
     {
       "close": 9.22,
@@ -477,7 +595,10 @@
       "code": "601577",
       "name": "长沙银行",
       "market": "SH",
-      "score": 73
+      "dividend_yield": 4.663774403470716,
+      "position_score": 73,
+      "score": 74,
+      "advice": "建议买入"
     },
     {
       "close": 4.96,
@@ -489,7 +610,10 @@
       "code": "601658",
       "name": "邮储银行",
       "market": "SH",
-      "score": 77
+      "dividend_yield": 4.401209677419355,
+      "position_score": 77,
+      "score": 76,
+      "advice": "建议买入"
     },
     {
       "close": 6.24,
@@ -501,7 +625,10 @@
       "code": "601665",
       "name": "齐鲁银行",
       "market": "SH",
-      "score": 61
+      "dividend_yield": 3.9935897435897436,
+      "position_score": 61,
+      "score": 61,
+      "advice": "持有 / 观察"
     },
     {
       "close": 4.54,
@@ -513,7 +640,10 @@
       "code": "601668",
       "name": "中国建筑",
       "market": "SH",
-      "score": 77
+      "dividend_yield": 5.986784140969163,
+      "position_score": 77,
+      "score": 79,
+      "advice": "建议买入"
     },
     {
       "close": 8.24,
@@ -525,7 +655,10 @@
       "code": "601825",
       "name": "沪农商行",
       "market": "SH",
-      "score": 68
+      "dividend_yield": 5.279126213592232,
+      "position_score": 68,
+      "score": 72,
+      "advice": "建议买入"
     },
     {
       "close": 18.1,
@@ -537,7 +670,10 @@
       "code": "601838",
       "name": "成都银行",
       "market": "SH",
-      "score": 65
+      "dividend_yield": 5.088397790055248,
+      "position_score": 65,
+      "score": 70,
+      "advice": "建议买入"
     },
     {
       "close": 10.85,
@@ -549,7 +685,10 @@
       "code": "601857",
       "name": "中国石油",
       "market": "SH",
-      "score": 59
+      "dividend_yield": 4.331797235023042,
+      "position_score": 59,
+      "score": 63,
+      "advice": "持有 / 观察"
     },
     {
       "close": 9.24,
@@ -561,7 +700,10 @@
       "code": "601928",
       "name": "凤凰传媒",
       "market": "SH",
-      "score": 77
+      "dividend_yield": 1.0822510822510822,
+      "position_score": 77,
+      "score": 64,
+      "advice": "持有 / 观察"
     },
     {
       "close": 10.13,
@@ -573,7 +715,10 @@
       "code": "601939",
       "name": "建设银行",
       "market": "SH",
-      "score": 56
+      "dividend_yield": 3.837117472852912,
+      "position_score": 56,
+      "score": 57,
+      "advice": "持有 / 观察"
     },
     {
       "close": 10.97,
@@ -585,7 +730,10 @@
       "code": "601963",
       "name": "重庆银行",
       "market": "SH",
-      "score": 64
+      "dividend_yield": 4.084776663628077,
+      "position_score": 64,
+      "score": 67,
+      "advice": "建议买入"
     },
     {
       "close": 5.82,
@@ -597,7 +745,10 @@
       "code": "601988",
       "name": "中国银行",
       "market": "SH",
-      "score": 63
+      "dividend_yield": 3.888316151202749,
+      "position_score": 63,
+      "score": 62,
+      "advice": "持有 / 观察"
     },
     {
       "close": 7.52,
@@ -609,8 +760,38 @@
       "code": "601998",
       "name": "中信银行",
       "market": "SH",
-      "score": 69
+      "dividend_yield": 5.066489361702127,
+      "position_score": 69,
+      "score": 73,
+      "advice": "建议买入"
     }
   ],
-  "count": 50
+  "count": 50,
+  "score_ranges": [
+    {
+      "min": 80,
+      "max": 100,
+      "label": "强烈买入"
+    },
+    {
+      "min": 65,
+      "max": 79,
+      "label": "建议买入"
+    },
+    {
+      "min": 45,
+      "max": 64,
+      "label": "持有 / 观察"
+    },
+    {
+      "min": 30,
+      "max": 44,
+      "label": "建议减仓"
+    },
+    {
+      "min": 0,
+      "max": 29,
+      "label": "建议卖出 / 回避"
+    }
+  ]
 }
