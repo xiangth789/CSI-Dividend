@@ -3,7 +3,8 @@ name: Update dividend low-vol data
 on:
   workflow_dispatch:
   schedule:
-    # Beijing weekdays 09:00-15:55. GitHub cron can be delayed by the platform.
+    # 北京时间工作日约 09:00-15:55，每5分钟尝试更新一次
+    # GitHub Actions cron 可能因平台负载延迟几分钟
     - cron: "*/5 1-7 * * 1-5"
 
 permissions:
@@ -17,14 +18,24 @@ jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 12
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-          cache: "pip"
-      - run: pip install -U akshare pandas numpy
-      - run: python updater.py
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U akshare pandas numpy
+
+      - name: Update market data
+        run: python updater.py
+
       - name: Commit refreshed data
         run: |
           git config user.name "github-actions[bot]"
