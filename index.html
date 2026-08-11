@@ -1,4 +1,4 @@
-<!doctype html> 
+<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -58,7 +58,7 @@ select{border:1px solid #d6ddda;background:#fff;border-radius:999px;padding:8px 
   <div class="top">
     <div>
       <h1>中证红利低波50</h1>
-      <div class="sub">H30269 · 完整50只 · V6.6 手机防缓存</div>
+      <div class="sub">H30269 · 完整50只 · V7.0 股息率增强</div>
     </div>
     <div class="date">
       <div id="dataDate">数据日 --</div>
@@ -76,7 +76,7 @@ select{border:1px solid #d6ddda;background:#fff;border-radius:999px;padding:8px 
     </div>
     <div class="status" id="idxStatus">正在读取云端 data.json…</div>
     <div class="diag" id="diag">诊断：等待读取 data.json…</div>
-    <div class="note">说明：H30269在当前云端行情源缺少稳定历史数据，因此用官方跟踪该指数的159547 ETF作为指数价格位置代理；50只成分股仍使用各自真实行情。</div>
+    <div class="note">说明：H30269价格位置继续使用159547 ETF代理；50只成分股使用各自真实价格与现金分红记录。综合评分=55%价格位置+45%股息吸引力，属于策略参考，不等同于完整基本面估值。</div>
   </div>
 
   <div class="card">
@@ -112,7 +112,11 @@ select{border:1px solid #d6ddda;background:#fff;border-radius:999px;padding:8px 
 
     <div class="detail">
       <div class="dm"><b id="mPrice">--</b><span>最新价</span></div>
-      <div class="dm"><b id="mScore">--</b><span>位置评分</span></div>
+      <div class="dm"><b id="mScore">--</b><span>综合评分</span></div>
+      <div class="dm"><b id="mPosScore">--</b><span>价格位置评分</span></div>
+      <div class="dm"><b id="mDivYield">--</b><span>TTM股息率</span></div>
+      <div class="dm"><b id="mDivAvg">--</b><span>近3年平均股息率</span></div>
+      <div class="dm"><b id="mDivPremium">--</b><span>当前较3年均值</span></div>
       <div class="dm"><b id="mChange">--</b><span>当日涨跌</span></div>
       <div class="dm"><b id="mAnnual">--</b><span>年线偏离</span></div>
       <div class="dm"><b id="mMA">--</b><span>250日均线</span></div>
@@ -121,6 +125,9 @@ select{border:1px solid #d6ddda;background:#fff;border-radius:999px;padding:8px 
       <div class="dm"><b id="mVol">--</b><span>20日波动率</span></div>
     </div>
 
+    <div class="reason">
+      <h4>近3年分红</h4><ul id="mDivYears"></ul>
+    </div>
     <div class="reason">
       <h4>分析结论</h4>
       <ul id="mReasons"></ul>
@@ -188,7 +195,11 @@ function renderStocks(){
       <div class="code">${x.code} · ${x.market_date||"--"}</div>
       <div class="row">
         <div><div class="label">最新价</div><div class="big">${Number(x.close).toFixed(2)}</div></div>
-        <div style="text-align:right"><div class="label">位置评分</div><div class="big">${x.score}</div></div>
+        <div style="text-align:right"><div class="label">价格位置评分</div><div class="big">${x.position_score??x.score}</div></div>
+      </div>
+      <div class="row">
+        <div><div class="label">TTM股息率</div><b>${x.div_yield!=null?Number(x.div_yield).toFixed(2)+"%":"--"}</b></div>
+        <div style="text-align:right"><div class="label">综合评分</div><b>${x.score}</b></div>
       </div>
       <div class="row">
         <div><div class="label">年线偏离</div><b>${signed(x.annual)}</b></div>
@@ -208,6 +219,12 @@ function openStock(code){
   mRec.className=`rec ${cls(x.score)}`;
   mPrice.textContent=Number(x.close).toFixed(2);
   mScore.textContent=x.score;
+  mPosScore.textContent=x.position_score??"--";
+  mDivYield.textContent=x.div_yield!=null?Number(x.div_yield).toFixed(2)+"%":"--";
+  mDivAvg.textContent=x.div_3y_avg_yield!=null?Number(x.div_3y_avg_yield).toFixed(2)+"%":"--";
+  mDivPremium.textContent=x.div_yield_premium!=null?signed(x.div_yield_premium):"--";
+  const yrs=x.div_years||[];
+  mDivYears.innerHTML=yrs.length?yrs.map(r=>`<li>${r.year}：每股现金分红 ${Number(r.cash||0).toFixed(3)} 元 · 年度股息率 ${r.yield!=null?Number(r.yield).toFixed(2)+"%":"--"}</li>`).join(""):"<li>暂无足够历史分红数据</li>";
   mChange.textContent=signed(x.change);
   mAnnual.textContent=signed(x.annual);
   mMA.textContent=Number(x.ma250).toFixed(2);
@@ -216,6 +233,15 @@ function openStock(code){
   mVol.textContent=Number(x.vol).toFixed(1)+"%";
 
   const rs=[];
+  if(x.div_yield!=null){
+    if(x.div_yield>=5) rs.push(`TTM股息率 ${Number(x.div_yield).toFixed(2)}%，当前现金回报水平较高。`);
+    else if(x.div_yield>=3) rs.push(`TTM股息率 ${Number(x.div_yield).toFixed(2)}%，处于中等水平。`);
+    else rs.push(`TTM股息率 ${Number(x.div_yield).toFixed(2)}%，当前股息吸引力偏弱。`);
+    if(x.div_yield_premium!=null){
+      if(x.div_yield_premium>0.5) rs.push(`当前股息率比近3年均值高 ${Number(x.div_yield_premium).toFixed(2)} 个百分点，股息赔率改善。`);
+      else if(x.div_yield_premium<-0.5) rs.push(`当前股息率比近3年均值低 ${Math.abs(Number(x.div_yield_premium)).toFixed(2)} 个百分点，股息赔率弱于自身历史。`);
+    }
+  }
   if(x.annual<=-5)rs.push(`年线偏离 ${signed(x.annual)}，低于长期均线，价格位置较有吸引力。`);
   else if(x.annual>=8)rs.push(`年线偏离 ${signed(x.annual)}，明显高于长期均线，存在追高风险。`);
   else rs.push(`年线偏离 ${signed(x.annual)}，处于年线附近。`);
@@ -270,7 +296,7 @@ async function fetchJsonWithTimeout(url, timeoutMs=12000){
 
 async function loadData(){
   const stamp=Date.now();
-  const url="./data.json?v=66&t="+stamp;
+  const url="./data.json?v=70&t="+stamp;
   diag.className="diag";
   diag.textContent="诊断：正在读取 "+url;
   idxStatus.textContent="正在读取云端 data.json…";
@@ -294,7 +320,7 @@ async function loadData(){
 
       const valid=d.stocks.filter(x=>x&&x.ok).length;
       diag.className="diag";
-      diag.textContent="诊断：读取成功 · "+valid+"/"+d.stocks.length+" 只有效 · 数据源 "+(d.source||d.index_source||"未标注");
+      diag.textContent="诊断：V7.0读取成功 · "+valid+"/"+d.stocks.length+" 只有效 · 数据源 "+(d.source||d.index_source||"未标注");
       return;
     }catch(e){
       lastErr=e;
@@ -307,7 +333,7 @@ async function loadData(){
   loadStatus.textContent="50只成分股数据暂不可用。";
   diag.className="diag bad";
   diag.textContent="诊断失败："+(lastErr?lastErr.message:"未知错误")
-    +"。请先在手机浏览器直接打开 /CSI-Dividend/data.json?v=66 检查是否能看到 JSON。";
+    +"。请先在手机浏览器直接打开 /CSI-Dividend/data.json?v=70 检查是否能看到 JSON。";
 }
 
 loadData();
