@@ -1,4 +1,4 @@
-name: Update dividend low-vol data V7.0 dividend restored
+name: Update dividend low-vol data V7.1 dividend fix
 
 on:
   workflow_dispatch:
@@ -9,34 +9,41 @@ permissions:
   contents: write
 
 concurrency:
-  group: dividend-lowvol-update-v70
+  group: dividend-lowvol-update-v71
   cancel-in-progress: true
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -U yfinance pandas numpy
-      - name: Verify V7.0 files
+          pip install -U yfinance pandas numpy curl_cffi
+
+      - name: Verify V7.1 files
         run: |
-          echo "=== V7.0 DIVIDEND RESTORED ==="
+          echo "=== V7.1 DIVIDEND ACTIONS FIX ==="
           head -n 3 updater.py
+
       - name: Update market and dividend data
+        env:
+          FORCE_DIVIDENDS: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
         run: python updater.py
+
       - name: Commit refreshed data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.json history_cache.json
-          git diff --cached --quiet || git commit -m "auto: refresh dividend low-vol V7.0"
+          git add data.json history_cache.json dividend_cache.json
+          git diff --cached --quiet || git commit -m "auto: refresh dividend low-vol V7.1"
           git push
