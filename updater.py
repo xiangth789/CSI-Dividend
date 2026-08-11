@@ -1,4 +1,4 @@
-# VERSION = "V6.4-YAHOO-ETF-PROXY"
+# VERSION = "V7.0-DIVIDEND-RESTORED"
 from __future__ import annotations
 import json, math
 from datetime import datetime, timezone, timedelta
@@ -54,9 +54,9 @@ def ticker_frame(df,ticker):
     return x.dropna(how="all")
 
 def build_daily_cache():
-    print("Downloading 2y daily history for 51 tickers from Yahoo Finance...")
-    df=yf.download(ALL_TICKERS,period="2y",interval="1d",group_by="ticker",
-                   auto_adjust=False,threads=True,progress=False,timeout=30)
+    print("Downloading 5y daily history + dividends for 51 tickers from Yahoo Finance...")
+    df=yf.download(ALL_TICKERS,period="5y",interval="1d",group_by="ticker",
+                   auto_adjust=False,actions=True,threads=True,progress=False,timeout=40)
     cache={"_source":"Yahoo Finance via yfinance",
            "_built_at":datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S"),
            "_history_date":datetime.now(TZ).strftime("%Y-%m-%d")}
@@ -66,10 +66,17 @@ def build_daily_cache():
         if x.empty or "Close" not in x.columns:continue
         x=x.dropna(subset=["Close"])
         if len(x)<250:continue
-        close=[float(v) for v in x["Close"].tail(280)]
-        high=[float(v) for v in x["High"].tail(280)] if "High" in x.columns else close
-        dates=[str(pd.Timestamp(v).date()) for v in x.tail(280).index]
-        cache[t]={"dates":dates,"closes":close,"highs":high}
+        x=x.tail(1400)
+        close=[float(v) for v in x["Close"]]
+        high=[float(v) for v in x["High"]] if "High" in x.columns else close
+        dates=[str(pd.Timestamp(v).date()) for v in x.index]
+        divs=[]
+        if "Dividends" in x.columns:
+            for dt,val in zip(x.index,x["Dividends"]):
+                vv=num(val,0.0)
+                if vv and vv>0:
+                    divs.append({"date":str(pd.Timestamp(dt).date()),"amount":round(vv,6)})
+        cache[t]={"dates":dates,"closes":close,"highs":high,"dividends":divs}
         ok+=1
     print("Daily history cached:",ok,"/",len(ALL_TICKERS))
     if INDEX_PROXY["ticker"] not in cache:
@@ -92,6 +99,75 @@ def latest_from_intraday(df,ticker):
     x=x.dropna(subset=["Close"])
     if x.empty:return None,None
     return num(x.iloc[-1]["Close"]),str(x.index[-1])
+
+
+def dividend_metrics(h,current):
+    """Calculate trailing dividend yield from actual cash dividends cached from Yahoo actions."""
+    divs=h.get("dividends",[]) or []
+    if not divs or not current:
+        return {"div_yield":None,"div_ttm":0.0,"div_3y_avg_yield":None,
+                "div_yield_premium":None,"div_years":[],"div_continuity":0}
+
+    today=datetime.now(TZ).date()
+    rows=[]
+    for d in divs:
+        try:
+            dt=datetime.strptime(d["date"],"%Y-%m-%d").date()
+            amt=num(d.get("amount"),0.0) or 0.0
+            if amt>0: rows.append((dt,amt))
+        except Exception:
+            pass
+
+    ttm=sum(a for dt,a in rows if 0 <= (today-dt).days <= 365)
+    div_yield=(ttm/current*100) if current>0 else None
+
+    # Aggregate cash dividend by calendar year and pair with average annual close.
+    dates=[datetime.strptime(s,"%Y-%m-%d").date() for s in h.get("dates",[])]
+    closes=[num(v) for v in h.get("closes",[])]
+    yearly=[]
+    for yr in range(today.year-1,today.year-4,-1):
+        cash=sum(a for dt,a in rows if dt.year==yr)
+        px=[p for dt,p in zip(dates,closes) if dt.year==yr and p]
+        avgpx=float(np.mean(px)) if px else None
+        yld=(cash/avgpx*100) if cash>0 and avgpx else None
+        yearly.append({"year":yr,"cash":round(cash,4),"yield":round(yld,3) if yld is not None else None})
+
+    valid=[r["yield"] for r in yearly if r["yield"] is not None]
+    avg3=float(np.mean(valid)) if valid else None
+    premium=(div_yield-avg3) if div_yield is not None and avg3 is not None else None
+    continuity=sum(1 for r in yearly if r["cash"]>0)
+
+    return {
+        "div_yield":round(div_yield,3) if div_yield is not None else None,
+        "div_ttm":round(ttm,4),
+        "div_3y_avg_yield":round(avg3,3) if avg3 is not None else None,
+        "div_yield_premium":round(premium,3) if premium is not None else None,
+        "div_years":yearly,
+        "div_continuity":continuity
+    }
+
+def dividend_score_from_cross_section(rows):
+    """Score dividend attractiveness using current yield rank + premium to own 3y average."""
+    valid=[r for r in rows if r.get("ok") and r.get("div_yield") is not None]
+    vals=sorted([r["div_yield"] for r in valid])
+    n=len(vals)
+    if not n:return
+    for r in valid:
+        y=r["div_yield"]
+        rank=sum(v<=y for v in vals)/n
+        rank_score=35+65*rank
+        prem=r.get("div_yield_premium")
+        if prem is None:
+            own_score=60
+        elif prem>=1.5: own_score=100
+        elif prem>=0.5: own_score=85
+        elif prem>=-0.3: own_score=70
+        elif prem>=-1.0: own_score=50
+        else: own_score=30
+        ds=int(round(rank_score*0.70+own_score*0.30))
+        r["div_score"]=ds
+        r["position_score"]=r.get("score")
+        r["score"]=int(round((r.get("position_score") or 0)*0.55 + ds*0.45))
 
 def calc(h,current):
     c=[num(x) for x in h["closes"] if num(x) is not None]
@@ -121,7 +197,9 @@ def main():
         p,ts=latest_from_intraday(intra,t)
         if p is None:p=num(h["closes"][-1]);ts=h["dates"][-1]+" close"
         if not p:return None
-        m=calc(h,p);m["market_date"]=h["dates"][-1];m["quote_time"]=ts
+        m=calc(h,p)
+        m.update(dividend_metrics(h,p))
+        m["market_date"]=h["dates"][-1];m["quote_time"]=ts
         return m
 
     idx=produce(INDEX_PROXY)
@@ -139,13 +217,15 @@ def main():
             print("stock failed",s["ticker"],repr(e))
             stock_rows.append({"name":s["name"],"code":s["code"],"ok":False})
 
-    payload={"status":"ok","source":"Yahoo Finance / yfinance",
-             "index_source":"159547 ETF proxy for H30269",
+    dividend_score_from_cross_section(stock_rows)
+
+    payload={"status":"ok","version":"V7.0","source":"Yahoo Finance / yfinance",
+             "index_source":"159547 ETF proxy for H30269","score_model":"55%价格位置 + 45%股息吸引力",
              "updated_at":now.strftime("%Y-%m-%d %H:%M:%S"),
              "market_date":idx.get("market_date","--"),"index":idx,
              "stocks":stock_rows,"constituent_count":len(STOCKS),"valid_stock_count":ok}
     OUT.write_text(json.dumps(payload,ensure_ascii=False,indent=2),encoding="utf-8")
-    print("SUCCESS",payload["updated_at"],"valid stocks:",ok,"index proxy:159547")
+    print("SUCCESS V7.0",payload["updated_at"],"valid stocks:",ok,"index proxy:159547")
 
 if __name__=="__main__":
     main()
