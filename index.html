@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17766f">
+<title>中证红利低波50</title>
+<style>
+:root{--bg:#f3f1eb;--card:#fff;--txt:#17322d;--muted:#71817d;--line:#dce1de;--teal:#17766f;--green:#31978f;--gray:#969e9b;--orange:#c56d58;--red:#a9384b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:680px;margin:auto;padding:14px 12px 30px}.top{display:flex;justify-content:space-between;gap:8px}h1{font-size:23px;margin:0 0 4px}.sub,.note{font-size:10px;color:var(--muted);line-height:1.55}.date{font-size:11px;color:var(--teal);font-weight:800;text-align:right;white-space:nowrap}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:12px}.title{font-size:15px;font-weight:900;border-left:5px solid var(--teal);padding-left:8px;margin-bottom:10px}
+.hero{display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:center}.circle{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#17766f 0deg,#dfe7e4 0deg);box-shadow:inset 0 0 0 11px #fff}.score{font-size:34px;font-weight:900;text-align:center}.score small{display:block;font-size:9px;color:var(--muted)}
+.grade{font-size:24px;font-weight:900}.desc{font-size:11px;color:var(--muted);line-height:1.55;margin-top:6px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.metric{background:#fafbf8;border:1px solid #e4e8e5;border-radius:12px;padding:10px}.metric span{display:block;font-size:9px;color:var(--muted)}.metric b{display:block;font-size:19px;margin-top:3px}.metric em{font-style:normal;font-size:9px;color:var(--muted)}
+.ranges{display:flex;flex-direction:column;gap:7px}.range{display:grid;grid-template-columns:64px 1fr 72px;gap:8px;padding:9px;border:1px solid #e2e7e4;border-radius:11px;background:#fafbf8}.range.active{border-color:#5c9e98;background:#edf7f5}.range b{font-size:12px}.range span{font-size:11px}.range small{text-align:right;color:var(--muted)}
+.tools{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.chip,select{background:#fff;border:1px solid #d8dfdb;border-radius:999px;padding:7px 10px;font-size:11px}.chip.active{background:var(--teal);color:white;border-color:var(--teal)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.stock{border-radius:16px;padding:12px;color:#fff;min-height:172px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.05)}
+.deep{background:#176f69}.green{background:#31978f}.gray{background:#969e9b}.orange{background:#c56d58}.red{background:#a9384b}.bad{background:#7e8582}
+.name{font-size:17px;font-weight:900}.code{font-size:10px;opacity:.92;margin-top:2px}.row{display:flex;justify-content:space-between;gap:6px;margin-top:9px;align-items:flex-end}.big{font-size:27px;font-weight:900;line-height:1}.label{font-size:9px;opacity:.92}.advice{font-size:12px;font-weight:900;margin-top:9px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:99}.modal.show{display:flex}.sheet{width:100%;max-height:88vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;padding:16px}.sheet h2{margin:0 0 3px;font-size:23px}.sheetSub{font-size:11px;color:var(--muted)}
+.rec{margin-top:12px;border-radius:15px;padding:13px;color:#fff}.rec h3{font-size:22px;margin:0 0 5px}.rec p{font-size:11px;margin:0;line-height:1.55}
+.detailGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.dm{background:#fafbf8;border:1px solid #e5e9e6;border-radius:12px;padding:10px}.dm b{font-size:18px;display:block}.dm span{font-size:10px;color:var(--muted)}
+.reason{background:#f7f9f8;border:1px solid #e5e9e6;border-radius:13px;padding:12px;margin-top:12px}.reason h4{margin:0 0 8px}.reason ul{margin:0;padding-left:18px;font-size:12px;line-height:1.7}.close{width:100%;border:0;border-radius:12px;background:var(--teal);color:#fff;padding:12px;font-weight:800;margin-top:14px}
+.alert{padding:10px;border-radius:12px;background:#fff7e8;color:#87631f;font-size:10px;line-height:1.55;margin-top:10px}
+@media(max-width:380px){.grid{grid-template-columns:1fr}.hero{grid-template-columns:110px 1fr}.circle{width:100px;height:100px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>中证红利低波50</h1><div class="sub">H30269 · 159547位置代理 · 5分钟监控</div></div>
+    <div class="date"><div id="dataDate">数据日 --</div><div id="updated">更新 --</div></div>
+  </div>
+
+  <div class="card">
+    <div class="title">01 · 红利低波50整体</div>
+    <div class="hero">
+      <div class="circle" id="circle"><div class="score"><span id="idxScore">--</span><small>位置参考评分</small></div></div>
+      <div><div class="grade" id="idxAdvice">等待数据</div><div class="desc" id="idxDesc">正在读取 GitHub 云端 data.json。</div></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><span>159547 ETF最新价</span><b id="idxClose">--</b><em id="idxChange">--</em></div>
+      <div class="metric"><span>年线偏离率</span><b id="idxAnnual">--</b><em>159547动态250日均线</em></div>
+      <div class="metric"><span>52周高点回撤</span><b id="idxDD">--</b><em>价格位置</em></div>
+      <div class="metric"><span>250日均线</span><b id="idxMA">--</b><em>自动计算</em></div>
+    </div>
+    <div class="alert">指数整体位置使用华夏红利低波ETF（159547）作为H30269的价格代理；个股仍使用50只成分股真实行情。当前“买入/持有/观望”属于价格位置模型。PE、PB、股息率历史分位、分红质量接入后，可再升级为完整价值评分。</div>
+  </div>
+
+  <div class="card">
+    <div class="title">02 · 评分区间 / 操作建议</div>
+    <div class="ranges" id="ranges"></div>
+  </div>
+
+  <div class="card">
+    <div class="title">03 · 50只成分股</div>
+    <div class="tools">
+      <button class="chip active" data-f="all">全部</button>
+      <button class="chip" data-f="buy">建议买入</button>
+      <button class="chip" data-f="hold">持有</button>
+      <button class="chip" data-f="watch">观望</button>
+      <button class="chip" data-f="below">低于年线</button>
+    </div>
+    <select id="sort">
+      <option value="score">按评分</option>
+      <option value="annual">按年线偏离</option>
+      <option value="dd">按回撤</option>
+      <option value="mom">按60日动量</option>
+    </select>
+    <div class="note" style="margin-top:8px">点击股票卡片查看单只股票详情和当前操作建议。</div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h2 id="mName">--</h2><div class="sheetSub" id="mCode">--</div>
+    <div class="rec" id="mRec"><h3 id="mAdvice">--</h3><p id="mSummary">--</p></div>
+    <div class="detailGrid">
+      <div class="dm"><b id="mPrice">--</b><span>最新价</span></div>
+      <div class="dm"><b id="mScore">--</b><span>位置评分</span></div>
+      <div class="dm"><b id="mAnnual">--</b><span>年线偏离</span></div>
+      <div class="dm"><b id="mMA">--</b><span>250日均线</span></div>
+      <div class="dm"><b id="mDD">--</b><span>52周回撤</span></div>
+      <div class="dm"><b id="mMom">--</b><span>60日动量</span></div>
+      <div class="dm"><b id="mVol">--</b><span>20日波动率</span></div>
+      <div class="dm"><b id="mChange">--</b><span>当日涨跌</span></div>
+    </div>
+    <div class="reason"><h4>为什么是这个建议</h4><ul id="mReasons"></ul></div>
+    <button class="close" onclick="closeModal()">关闭</button>
+  </div>
+</div>
+
+<script>
+let DATA=null, filter="all";
+const ranges=[
+ [80,100,"建议买入","分批增加仓位"],
+ [65,79,"偏买入 / 持有","已有仓位持有，新资金可分批"],
+ [50,64,"持有","不追高，继续观察"],
+ [35,49,"观望","等待价格位置改善"],
+ [0,34,"减仓 / 回避","价格或趋势风险较高"]
+];
+const signed=(x,d=2)=>x==null?"--":(x>=0?"+":"")+Number(x).toFixed(d)+"%";
+function cls(s){return s>=80?"deep":s>=65?"green":s>=50?"gray":s>=35?"orange":"red"}
+function advice(s){return s>=80?"建议买入":s>=65?"偏买入 / 持有":s>=50?"持有":s>=35?"观望":"减仓 / 回避"}
+function summary(s){
+ if(s>=80)return "价格位置具有较强吸引力，可考虑分批买入；仍需结合基本面和个人仓位。";
+ if(s>=65)return "位置偏有吸引力，已有仓位以持有为主，新资金可小步分批。";
+ if(s>=50)return "价格位置中性，持有优先，不建议追涨。";
+ if(s>=35)return "当前赔率一般，建议观望，等待估值或价格位置改善。";
+ return "位置或趋势风险偏高，暂不建议新增仓位。";
+}
+function drawRanges(score){
+ document.getElementById("ranges").innerHTML=ranges.map(r=>`<div class="range ${score>=r[0]&&score<=r[1]?"active":""}"><b>${r[0]}–${r[1]}</b><span>${r[2]}</span><small>${r[3]}</small></div>`).join("");
+}
+function paintIndex(x){
+ idxClose.textContent=x.close?.toFixed(2)??"--"; idxAnnual.textContent=signed(x.annual);
+ idxDD.textContent=x.dd==null?"--":"-"+x.dd.toFixed(2)+"%"; idxMA.textContent=x.ma250?.toFixed(2)??"--";
+ idxChange.textContent=signed(x.change); idxScore.textContent=x.score??"--"; idxAdvice.textContent=advice(x.score||0);
+ idxDesc.textContent=summary(x.score||0); circle.style.background=`conic-gradient(#17766f ${(x.score||0)*3.6}deg,#dfe7e4 0deg)`;
+ drawRanges(x.score||0);
+}
+function filtered(){
+ let a=[...(DATA?.stocks||[])].filter(x=>x.ok);
+ if(filter==="buy")a=a.filter(x=>x.score>=80);
+ if(filter==="hold")a=a.filter(x=>x.score>=50&&x.score<80);
+ if(filter==="watch")a=a.filter(x=>x.score>=35&&x.score<50);
+ if(filter==="below")a=a.filter(x=>x.annual<0);
+ const s=sort.value;
+ a.sort((x,y)=>s==="annual"?x.annual-y.annual:s==="dd"?y.dd-x.dd:s==="mom"?y.mom-x.mom:y.score-x.score);
+ return a;
+}
+function renderStocks(){
+ grid.innerHTML=filtered().map(x=>`<div class="stock ${cls(x.score)}" onclick="openStock('${x.code}')">
+   <div class="name">${x.name}</div><div class="code">${x.code} · ${x.market_date||""}</div>
+   <div class="row"><div><div class="label">最新价</div><div class="big">${x.close.toFixed(2)}</div></div><div style="text-align:right"><div class="label">位置评分</div><div class="big">${x.score}</div></div></div>
+   <div class="row"><div><div class="label">年线偏离</div><b>${signed(x.annual)}</b></div><div style="text-align:right"><div class="label">52周回撤</div><b>-${x.dd.toFixed(1)}%</b></div></div>
+   <div class="advice">${advice(x.score)}</div></div>`).join("");
+}
+function openStock(code){
+ const x=DATA.stocks.find(s=>s.code===code); if(!x)return;
+ mName.textContent=x.name; mCode.textContent=x.code+" · 数据日 "+(x.market_date||"--");
+ mAdvice.textContent=advice(x.score); mSummary.textContent=summary(x.score); mRec.className="rec "+cls(x.score);
+ mPrice.textContent=x.close.toFixed(2);mScore.textContent=x.score;mAnnual.textContent=signed(x.annual);mMA.textContent=x.ma250.toFixed(2);
+ mDD.textContent="-"+x.dd.toFixed(2)+"%";mMom.textContent=signed(x.mom);mVol.textContent=x.vol.toFixed(1)+"%";mChange.textContent=signed(x.change);
+ const rs=[];
+ if(x.annual<=-5)rs.push(`年线偏离 ${signed(x.annual)}，价格低于长期均线，位置有一定安全边际。`);
+ else if(x.annual>=8)rs.push(`年线偏离 ${signed(x.annual)}，明显高于长期均线，存在追高风险。`);
+ else rs.push(`年线偏离 ${signed(x.annual)}，处于年线附近。`);
+ if(x.dd>=8&&x.dd<=20)rs.push(`52周回撤 ${x.dd.toFixed(1)}%，已有一定调整，赔率改善。`);
+ else if(x.dd<5)rs.push(`距52周高点较近，价格安全边际相对有限。`);
+ else rs.push(`52周回撤 ${x.dd.toFixed(1)}%，需要结合趋势判断。`);
+ if(x.mom<-8)rs.push(`60日动量 ${signed(x.mom)}，中期趋势较弱，因此降低买入评级。`);
+ else if(x.mom>12)rs.push(`60日动量 ${signed(x.mom)}，上涨较快，策略会避免追涨。`);
+ else rs.push(`60日动量 ${signed(x.mom)}，趋势没有出现极端状态。`);
+ if(x.vol<=16)rs.push(`20日波动率 ${x.vol.toFixed(1)}%，波动较低，符合低波策略。`);
+ else rs.push(`20日波动率 ${x.vol.toFixed(1)}%，短期波动偏高。`);
+ mReasons.innerHTML=rs.map(t=>`<li>${t}</li>`).join(""); modal.classList.add("show");
+}
+function closeModal(){modal.classList.remove("show")}
+modal.addEventListener("click",e=>{if(e.target===modal)closeModal()});
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");filter=b.dataset.f;renderStocks()});
+sort.onchange=renderStocks;
+async function loadData(){
+ try{
+   const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok)throw 0;
+   DATA=await r.json(); if(DATA.status!=="ok")throw 0;
+   dataDate.textContent="数据日 "+(DATA.market_date||"--"); updated.textContent="更新 "+(DATA.updated_at||"--");
+   paintIndex(DATA.index);renderStocks();
+ }catch(e){idxAdvice.textContent="云端数据未生成";idxDesc.textContent="请确认 GitHub Actions 已成功运行并生成 data.json。";}
+}
+loadData(); setInterval(loadData,60*1000);
+</script></body></html>
