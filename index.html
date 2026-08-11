@@ -58,7 +58,7 @@ select{border:1px solid #d6ddda;background:#fff;border-radius:999px;padding:8px 
   <div class="top">
     <div>
       <h1>中证红利低波50</h1>
-      <div class="sub">H30269 · 完整50只 · V7.0 股息率增强</div>
+      <div class="sub">H30269 · 完整50只 · V7.1 分红数据修复</div>
     </div>
     <div class="date">
       <div id="dataDate">数据日 --</div>
@@ -296,7 +296,7 @@ async function fetchJsonWithTimeout(url, timeoutMs=12000){
 
 async function loadData(){
   const stamp=Date.now();
-  const url="./data.json?v=70&t="+stamp;
+  const url="./data.json?v=71&t="+stamp;
   diag.className="diag";
   diag.textContent="诊断：正在读取 "+url;
   idxStatus.textContent="正在读取云端 data.json…";
@@ -320,7 +320,7 @@ async function loadData(){
 
       const valid=d.stocks.filter(x=>x&&x.ok).length;
       diag.className="diag";
-      diag.textContent="诊断：V7.0读取成功 · "+valid+"/"+d.stocks.length+" 只有效 · 数据源 "+(d.source||d.index_source||"未标注");
+      diag.textContent="诊断：V7.1读取成功 · "+valid+"/"+d.stocks.length+" 只有效 · 数据源 "+(d.source||d.index_source||"未标注");
       return;
     }catch(e){
       lastErr=e;
@@ -333,7 +333,7 @@ async function loadData(){
   loadStatus.textContent="50只成分股数据暂不可用。";
   diag.className="diag bad";
   diag.textContent="诊断失败："+(lastErr?lastErr.message:"未知错误")
-    +"。请先在手机浏览器直接打开 /CSI-Dividend/data.json?v=70 检查是否能看到 JSON。";
+    +"。请先在手机浏览器直接打开 /CSI-Dividend/data.json?v=71 检查是否能看到 JSON。";
 }
 
 loadData();

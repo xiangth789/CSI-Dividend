@@ -1,8 +1,9 @@
-# VERSION = "V7.0-DIVIDEND-RESTORED"
+# VERSION = "V7.1-DIVIDEND-ACTIONS-FIX"
 from __future__ import annotations
-import json, math
+import json, math, os, time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -10,6 +11,7 @@ import yfinance as yf
 ROOT=Path(__file__).resolve().parent
 OUT=ROOT/"data.json"
 CACHE=ROOT/"history_cache.json"
+DIV_CACHE=ROOT/"dividend_cache.json"
 TZ=timezone(timedelta(hours=8))
 
 # H30269 在 Yahoo 历史接口不可用，因此用官方跟踪该指数的 159547 ETF 做“指数价格位置代理”
@@ -54,9 +56,9 @@ def ticker_frame(df,ticker):
     return x.dropna(how="all")
 
 def build_daily_cache():
-    print("Downloading 5y daily history + dividends for 51 tickers from Yahoo Finance...")
+    print("Downloading 5y daily PRICE history for 51 tickers from Yahoo Finance...")
     df=yf.download(ALL_TICKERS,period="5y",interval="1d",group_by="ticker",
-                   auto_adjust=False,actions=True,threads=True,progress=False,timeout=40)
+                   auto_adjust=False,actions=False,threads=True,progress=False,timeout=40)
     cache={"_source":"Yahoo Finance via yfinance",
            "_built_at":datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S"),
            "_history_date":datetime.now(TZ).strftime("%Y-%m-%d")}
@@ -70,20 +72,120 @@ def build_daily_cache():
         close=[float(v) for v in x["Close"]]
         high=[float(v) for v in x["High"]] if "High" in x.columns else close
         dates=[str(pd.Timestamp(v).date()) for v in x.index]
-        divs=[]
-        if "Dividends" in x.columns:
-            for dt,val in zip(x.index,x["Dividends"]):
-                vv=num(val,0.0)
-                if vv and vv>0:
-                    divs.append({"date":str(pd.Timestamp(dt).date()),"amount":round(vv,6)})
-        cache[t]={"dates":dates,"closes":close,"highs":high,"dividends":divs}
+        cache[t]={"dates":dates,"closes":close,"highs":high}
         ok+=1
-    print("Daily history cached:",ok,"/",len(ALL_TICKERS))
+    print("Daily price history cached:",ok,"/",len(ALL_TICKERS))
     if INDEX_PROXY["ticker"] not in cache:
         raise RuntimeError("159547 ETF proxy history unavailable")
     if ok<45:
         raise RuntimeError(f"Yahoo daily history only returned {ok}/51 tickers")
     save_cache(cache);return cache
+
+def load_div_cache():
+    try:return json.loads(DIV_CACHE.read_text(encoding="utf-8"))
+    except Exception:return {}
+
+def save_div_cache(c):
+    DIV_CACHE.write_text(json.dumps(c,ensure_ascii=False,indent=2),encoding="utf-8")
+
+def _series_to_dividends(series):
+    out=[]
+    if series is None:return out
+    try:
+        series=series.dropna()
+    except Exception:
+        return out
+    for dt,val in series.items():
+        vv=num(val,0.0) or 0.0
+        if vv<=0:continue
+        try:d=str(pd.Timestamp(dt).date())
+        except Exception:continue
+        out.append({"date":d,"amount":round(vv,6)})
+    # Yahoo can occasionally repeat a corporate-action row; deduplicate date+amount.
+    seen=set();clean=[]
+    for r in out:
+        k=(r["date"],r["amount"])
+        if k not in seen:
+            seen.add(k);clean.append(r)
+    clean.sort(key=lambda r:r["date"])
+    return clean
+
+def fetch_dividends_one(ticker):
+    """Fetch corporate cash-dividend actions independently from bulk price download."""
+    last=None
+    for attempt in range(1,4):
+        try:
+            tk=yf.Ticker(ticker)
+            # First choice: dedicated corporate-action endpoint exposed by yfinance.
+            s=tk.dividends
+            divs=_series_to_dividends(s)
+            if divs:
+                return divs,"Ticker.dividends"
+            # Fallback: per-ticker history with actions=True.
+            h=tk.history(period="5y",interval="1d",auto_adjust=False,
+                         actions=True,repair=True,raise_errors=False)
+            if h is not None and not h.empty and "Dividends" in h.columns:
+                divs=_series_to_dividends(h["Dividends"])
+                if divs:
+                    return divs,"Ticker.history(actions=True)"
+            last="empty dividend response"
+        except Exception as e:
+            last=repr(e)
+        time.sleep(attempt*1.2)
+    raise RuntimeError(last or "no dividend data")
+
+def refresh_dividend_cache(force=False):
+    old=load_div_cache()
+    today=datetime.now(TZ).strftime("%Y-%m-%d")
+    old_date=old.get("_dividend_date")
+    have=sum(1 for t in [x["ticker"] for x in STOCKS] if old.get(t,{}).get("dividends"))
+    if not force and old_date==today and have>=35:
+        print("Dividend cache is fresh:",have,"/50")
+        return old
+
+    print("Refreshing dedicated dividend actions for 50 stocks...")
+    new={
+        "_source":"Yahoo Finance per-ticker corporate actions via yfinance",
+        "_built_at":datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S"),
+        "_dividend_date":today
+    }
+
+    # Reuse old per-stock data if Yahoo transiently fails for a ticker.
+    failures=[]
+    def job(item):
+        t=item["ticker"]
+        divs,source=fetch_dividends_one(t)
+        return t,divs,source
+
+    # Moderate concurrency to reduce rate-limit risk.
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        futs={ex.submit(job,s):s for s in STOCKS}
+        for fut in as_completed(futs):
+            s=futs[fut];t=s["ticker"]
+            try:
+                t,divs,source=fut.result()
+                new[t]={"dividends":divs,"source":source,
+                        "updated_at":datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S")}
+                print("dividend ok",t,len(divs),source)
+            except Exception as e:
+                old_entry=old.get(t)
+                if old_entry and old_entry.get("dividends"):
+                    new[t]=old_entry
+                    print("dividend fallback-cache",t,repr(e))
+                else:
+                    failures.append((t,repr(e)))
+                    new[t]={"dividends":[],"error":repr(e)}
+                    print("dividend failed",t,repr(e))
+
+    valid=sum(1 for s in STOCKS if new.get(s["ticker"],{}).get("dividends"))
+    print("Dividend history valid:",valid,"/50")
+    save_div_cache(new)
+
+    # This is a dividend index: if fewer than 35 names return any dividend history,
+    # treat the corporate-action feed as broken rather than silently publishing blanks.
+    if valid<35:
+        raise RuntimeError(f"Dividend self-check failed: only {valid}/50 stocks have dividend history")
+    return new
 
 def download_intraday():
     print("Downloading latest 5m prices...")
@@ -101,9 +203,9 @@ def latest_from_intraday(df,ticker):
     return num(x.iloc[-1]["Close"]),str(x.index[-1])
 
 
-def dividend_metrics(h,current):
-    """Calculate trailing dividend yield from actual cash dividends cached from Yahoo actions."""
-    divs=h.get("dividends",[]) or []
+def dividend_metrics(h,current,divs=None):
+    """Calculate trailing dividend yield from dedicated corporate-action data."""
+    divs=(divs or [])
     if not divs or not current:
         return {"div_yield":None,"div_ttm":0.0,"div_3y_avg_yield":None,
                 "div_yield_premium":None,"div_years":[],"div_continuity":0}
@@ -189,6 +291,8 @@ def main():
     need=INDEX_PROXY["ticker"] not in cache or sum(t in cache for t in ALL_TICKERS)<45
     if now.hour>=16 and cache.get("_history_date")!=now.strftime("%Y-%m-%d"):need=True
     if need:cache=build_daily_cache()
+    force_div=os.getenv("FORCE_DIVIDENDS","0")=="1"
+    div_cache=refresh_dividend_cache(force=force_div)
     intra=download_intraday()
 
     def produce(item):
@@ -198,7 +302,7 @@ def main():
         if p is None:p=num(h["closes"][-1]);ts=h["dates"][-1]+" close"
         if not p:return None
         m=calc(h,p)
-        m.update(dividend_metrics(h,p))
+        m.update(dividend_metrics(h,p,div_cache.get(t,{}).get("dividends",[])))
         m["market_date"]=h["dates"][-1];m["quote_time"]=ts
         return m
 
@@ -218,14 +322,18 @@ def main():
             stock_rows.append({"name":s["name"],"code":s["code"],"ok":False})
 
     dividend_score_from_cross_section(stock_rows)
+    div_valid=sum(1 for r in stock_rows if r.get("ok") and r.get("div_yield") is not None)
+    print("TTM dividend yield valid:",div_valid,"/50")
+    if div_valid<35:
+        raise RuntimeError(f"TTM dividend yield self-check failed: only {div_valid}/50 valid")
 
-    payload={"status":"ok","version":"V7.0","source":"Yahoo Finance / yfinance",
-             "index_source":"159547 ETF proxy for H30269","score_model":"55%价格位置 + 45%股息吸引力",
+    payload={"status":"ok","version":"V7.1","source":"Yahoo Finance / yfinance",
+             "index_source":"159547 ETF proxy for H30269","score_model":"55%价格位置 + 45%股息吸引力","dividend_source":"Yahoo per-ticker corporate actions",
              "updated_at":now.strftime("%Y-%m-%d %H:%M:%S"),
              "market_date":idx.get("market_date","--"),"index":idx,
-             "stocks":stock_rows,"constituent_count":len(STOCKS),"valid_stock_count":ok}
+             "stocks":stock_rows,"constituent_count":len(STOCKS),"valid_stock_count":ok,"valid_dividend_count":div_valid}
     OUT.write_text(json.dumps(payload,ensure_ascii=False,indent=2),encoding="utf-8")
-    print("SUCCESS V7.0",payload["updated_at"],"valid stocks:",ok,"index proxy:159547")
+    print("SUCCESS V7.1",payload["updated_at"],"valid stocks:",ok,"valid dividends:",div_valid,"index proxy:159547")
 
 if __name__=="__main__":
     main()
