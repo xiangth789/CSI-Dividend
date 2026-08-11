@@ -1,0 +1,48 @@
+name: Update dividend low-vol data V6.3 Yahoo
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 1-7 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dividend-lowvol-update-v63
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install Yahoo dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U yfinance pandas numpy
+
+      - name: Verify V6.3 files
+        run: |
+          echo "=== V6.3 YAHOO DATA SOURCE ==="
+          head -n 8 updater.py
+
+      - name: Update market data with Yahoo
+        run: python updater.py
+
+      - name: Commit refreshed data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json history_cache.json
+          git diff --cached --quiet || git commit -m "auto: refresh dividend low-vol data V6.3"
+          git push
