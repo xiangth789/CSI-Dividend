@@ -1,15 +1,16 @@
-name: Update dividend low-vol data V7.1 dividend fix
+name: Update dividend low-vol data V8.0 Tencent intraday
 
 on:
   workflow_dispatch:
   schedule:
+    # Beijing 09:00-15:59, weekdays. GitHub scheduled jobs may be delayed.
     - cron: "*/5 1-7 * * 1-5"
 
 permissions:
   contents: write
 
 concurrency:
-  group: dividend-lowvol-update-v71
+  group: dividend-lowvol-update-v80
   cancel-in-progress: true
 
 jobs:
@@ -28,14 +29,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -U yfinance pandas numpy curl_cffi
+          pip install -U yfinance pandas numpy curl_cffi requests
 
-      - name: Verify V7.1 files
+      - name: Verify Tencent parser
+        run: python test_quote_provider.py
+
+      - name: Verify V8.0 files
         run: |
-          echo "=== V7.1 DIVIDEND ACTIONS FIX ==="
+          echo "=== V8.0 TENCENT INTRADAY ==="
           head -n 3 updater.py
 
-      - name: Update market and dividend data
+      - name: Update realtime market and dividend data
         env:
           FORCE_DIVIDENDS: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
         run: python updater.py
@@ -45,5 +49,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data.json history_cache.json dividend_cache.json
-          git diff --cached --quiet || git commit -m "auto: refresh dividend low-vol V7.1"
+          git diff --cached --quiet || git commit -m "auto: refresh dividend low-vol V8.0 realtime"
           git push
