@@ -1,4 +1,4 @@
-# VERSION = "V7.1-DIVIDEND-ACTIONS-FIX"
+# VERSION = "V8.0-TENCENT-INTRADAY"
 from __future__ import annotations
 import json, math, os, time
 from datetime import datetime, timezone, timedelta
@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import pandas as pd
 import yfinance as yf
+from quote_provider import fetch_tencent_quotes
 
 ROOT=Path(__file__).resolve().parent
 OUT=ROOT/"data.json"
@@ -187,20 +188,34 @@ def refresh_dividend_cache(force=False):
         raise RuntimeError(f"Dividend self-check failed: only {valid}/50 stocks have dividend history")
     return new
 
-def download_intraday():
-    print("Downloading latest 5m prices...")
-    try:
-        return yf.download(ALL_TICKERS,period="1d",interval="5m",group_by="ticker",
-                           auto_adjust=False,threads=True,progress=False,timeout=25)
-    except Exception as e:
-        print("Intraday failed:",repr(e));return pd.DataFrame()
+def in_active_market_session(now):
+    if now.weekday() >= 5:
+        return False
+    hm = now.hour * 60 + now.minute
+    return (570 <= hm <= 690) or (780 <= hm <= 900)  # 09:30-11:30, 13:00-15:00
 
-def latest_from_intraday(df,ticker):
-    x=ticker_frame(df,ticker)
-    if x.empty or "Close" not in x.columns:return None,None
-    x=x.dropna(subset=["Close"])
-    if x.empty:return None,None
-    return num(x.iloc[-1]["Close"]),str(x.index[-1])
+def validate_realtime_quotes(quotes, now):
+    valid = len(quotes)
+    print("Tencent realtime quotes:", valid, "/51")
+    if valid < 45:
+        raise RuntimeError(f"Tencent realtime self-check failed: only {valid}/51 quotes")
+    if in_active_market_session(now):
+        today = now.strftime("%Y-%m-%d")
+        todays = [q for q in quotes.values() if q.get("market_date") == today]
+        if len(todays) < 45:
+            raise RuntimeError(f"Realtime freshness failed: only {len(todays)}/51 quotes dated {today}")
+        times = []
+        for q in todays:
+            try:
+                times.append(datetime.strptime(q["quote_time"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=TZ))
+            except Exception:
+                pass
+        if times:
+            newest = max(times)
+            age = (now - newest).total_seconds() / 60
+            print("Newest Tencent quote:", newest.strftime("%Y-%m-%d %H:%M:%S"), "age_min:", round(age,1))
+            if age > 20:
+                raise RuntimeError(f"Realtime freshness failed: newest quote is {age:.1f} minutes old")
 
 
 def dividend_metrics(h,current,divs=None):
@@ -271,10 +286,16 @@ def dividend_score_from_cross_section(rows):
         r["position_score"]=r.get("score")
         r["score"]=int(round((r.get("position_score") or 0)*0.55 + ds*0.45))
 
-def calc(h,current):
+def calc(h,current,current_date=None):
     c=[num(x) for x in h["closes"] if num(x) is not None]
     hi=[num(x) for x in h["highs"] if num(x) is not None]
-    if len(c)<250:raise ValueError("history <250")
+    dates=h.get("dates",[])
+    # If Yahoo daily cache already contains the same trading day, remove that last
+    # close before appending the Tencent quote so today's price is counted once.
+    if current_date and dates and dates[-1] == current_date and len(c)>1:
+        c=c[:-1]
+        hi=hi[:-1] if len(hi)>1 else hi
+    if len(c)<249:raise ValueError("history <249")
     ma250=float(np.mean(c[-249:]+[current]))
     annual=(current/ma250-1)*100
     high=max(hi[-249:]+[current]);dd=max(0.0,(1-current/high)*100)
@@ -293,17 +314,34 @@ def main():
     if need:cache=build_daily_cache()
     force_div=os.getenv("FORCE_DIVIDENDS","0")=="1"
     div_cache=refresh_dividend_cache(force=force_div)
-    intra=download_intraday()
+    quote_codes=[INDEX_PROXY["code"]]+[s["code"] for s in STOCKS]
+    quotes=fetch_tencent_quotes(quote_codes)
+    validate_realtime_quotes(quotes, now)
 
     def produce(item):
-        t=item["ticker"];h=cache.get(t)
+        t=item["ticker"];code=item["code"];h=cache.get(t)
         if not h:return None
-        p,ts=latest_from_intraday(intra,t)
-        if p is None:p=num(h["closes"][-1]);ts=h["dates"][-1]+" close"
+        q=quotes.get(code)
+        if not q:
+            raise RuntimeError(f"missing Tencent quote: {code}")
+        p=num(q.get("price"))
         if not p:return None
-        m=calc(h,p)
+        market_date=q.get("market_date") or h["dates"][-1]
+        m=calc(h,p,market_date)
+        # Use exchange quote for the displayed intraday change rather than
+        # recomputing against a possibly same-day Yahoo daily cache.
+        if q.get("change_pct") is not None:
+            m["change"]=round(float(q["change_pct"]),3)
         m.update(dividend_metrics(h,p,div_cache.get(t,{}).get("dividends",[])))
-        m["market_date"]=h["dates"][-1];m["quote_time"]=ts
+        m["market_date"]=market_date
+        m["quote_time"]=q.get("quote_time")
+        m["quote_source"]="Tencent Finance"
+        m["open"]=q.get("open")
+        m["high_today"]=q.get("high")
+        m["low_today"]=q.get("low")
+        m["turnover"]=q.get("turnover")
+        m["pe_ttm_live"]=q.get("pe_ttm")
+        m["pb_live"]=q.get("pb")
         return m
 
     idx=produce(INDEX_PROXY)
@@ -327,13 +365,13 @@ def main():
     if div_valid<35:
         raise RuntimeError(f"TTM dividend yield self-check failed: only {div_valid}/50 valid")
 
-    payload={"status":"ok","version":"V7.1","source":"Yahoo Finance / yfinance",
-             "index_source":"159547 ETF proxy for H30269","score_model":"55%价格位置 + 45%股息吸引力","dividend_source":"Yahoo per-ticker corporate actions",
+    payload={"status":"ok","version":"V8.0","source":"Tencent Finance realtime + Yahoo Finance history",
+             "index_source":"159547 ETF proxy for H30269","score_model":"55%价格位置 + 45%股息吸引力","dividend_source":"Yahoo per-ticker corporate actions","realtime_source":"Tencent Finance qt.gtimg.cn","quote_valid_count":len(quotes),
              "updated_at":now.strftime("%Y-%m-%d %H:%M:%S"),
              "market_date":idx.get("market_date","--"),"index":idx,
              "stocks":stock_rows,"constituent_count":len(STOCKS),"valid_stock_count":ok,"valid_dividend_count":div_valid}
     OUT.write_text(json.dumps(payload,ensure_ascii=False,indent=2),encoding="utf-8")
-    print("SUCCESS V7.1",payload["updated_at"],"valid stocks:",ok,"valid dividends:",div_valid,"index proxy:159547")
+    print("SUCCESS V8.0",payload["updated_at"],"valid stocks:",ok,"valid dividends:",div_valid,"realtime quotes:",len(quotes),"index proxy:159547")
 
 if __name__=="__main__":
     main()

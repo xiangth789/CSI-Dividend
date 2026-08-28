@@ -58,7 +58,7 @@ select{border:1px solid #d6ddda;background:#fff;border-radius:999px;padding:8px 
   <div class="top">
     <div>
       <h1>中证红利低波50</h1>
-      <div class="sub">H30269 · 完整50只 · V7.1 分红数据修复</div>
+      <div class="sub">H30269 · 完整50只 · V8.0 腾讯盘中行情</div>
     </div>
     <div class="date">
       <div id="dataDate">数据日 --</div>
@@ -192,9 +192,9 @@ function renderStocks(){
   grid.innerHTML=a.map(x=>`
     <div class="stock ${cls(x.score)}" onclick="openStock('${x.code}')">
       <div class="name">${x.name}</div>
-      <div class="code">${x.code} · ${x.market_date||"--"}</div>
+      <div class="code">${x.code} · 行情 ${x.quote_time?x.quote_time.slice(11,19):(x.market_date||"--")}</div>
       <div class="row">
-        <div><div class="label">最新价</div><div class="big">${Number(x.close).toFixed(2)}</div></div>
+        <div><div class="label">最新价 · 当日涨跌</div><div class="big">${Number(x.close).toFixed(2)}</div><div style="font-size:12px;font-weight:800;margin-top:5px">${signed(x.change)}</div></div>
         <div style="text-align:right"><div class="label">价格位置评分</div><div class="big">${x.position_score??x.score}</div></div>
       </div>
       <div class="row">
@@ -213,7 +213,7 @@ function openStock(code){
   const x=(DATA?.stocks||[]).find(s=>s.code===code);
   if(!x)return;
   mName.textContent=x.name;
-  mCode.textContent=`${x.code} · 数据日 ${x.market_date||"--"}`;
+  mCode.textContent=`${x.code} · 行情时间 ${x.quote_time||x.market_date||"--"} · 腾讯财经`;
   mAdvice.textContent=advice(x.score);
   mSummary.textContent=summary(x.score);
   mRec.className=`rec ${cls(x.score)}`;
@@ -296,7 +296,8 @@ async function fetchJsonWithTimeout(url, timeoutMs=12000){
 
 async function loadData(){
   const stamp=Date.now();
-  const url="./data.json?v=71&t="+stamp;
+  const rawUrl="https://raw.githubusercontent.com/xiangth789/CSI-Dividend/main/data.json?v=80&t="+stamp;
+  const url=rawUrl;
   diag.className="diag";
   diag.textContent="诊断：正在读取 "+url;
   idxStatus.textContent="正在读取云端 data.json…";
@@ -304,7 +305,12 @@ async function loadData(){
   let lastErr=null;
   for(let attempt=1;attempt<=3;attempt++){
     try{
-      const d=await fetchJsonWithTimeout(url+"&try="+attempt,12000);
+      let d;
+      try{
+        d=await fetchJsonWithTimeout(url+"&try="+attempt,12000);
+      }catch(primaryErr){
+        d=await fetchJsonWithTimeout("./data.json?v=80&t="+stamp+"&try="+attempt,12000);
+      }
 
       if(!d || typeof d!=="object") throw new Error("data.json 不是有效对象");
       if(d.status!=="ok") throw new Error("status="+String(d.status));
@@ -320,7 +326,7 @@ async function loadData(){
 
       const valid=d.stocks.filter(x=>x&&x.ok).length;
       diag.className="diag";
-      diag.textContent="诊断：V7.1读取成功 · "+valid+"/"+d.stocks.length+" 只有效 · 数据源 "+(d.source||d.index_source||"未标注");
+      diag.textContent="诊断：V8.0读取成功 · 行情 "+(d.quote_valid_count??valid)+"/51 · 成分股 "+valid+"/"+d.stocks.length+" · 股息率 "+(d.valid_dividend_count??"--")+"/50 · "+(d.realtime_source||d.source||"未标注");
       return;
     }catch(e){
       lastErr=e;
@@ -333,11 +339,11 @@ async function loadData(){
   loadStatus.textContent="50只成分股数据暂不可用。";
   diag.className="diag bad";
   diag.textContent="诊断失败："+(lastErr?lastErr.message:"未知错误")
-    +"。请先在手机浏览器直接打开 /CSI-Dividend/data.json?v=71 检查是否能看到 JSON。";
+    +"。请先在手机浏览器直接打开 /CSI-Dividend/data.json?v=80 检查是否能看到 JSON。";
 }
 
 loadData();
-setInterval(loadData,60*1000);
+setInterval(loadData,30*1000);
 </script>
 </body>
 </html>
