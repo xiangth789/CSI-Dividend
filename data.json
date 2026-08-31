@@ -7,7 +7,7 @@
   "dividend_source": "Yahoo per-ticker corporate actions",
   "realtime_source": "Tencent Finance qt.gtimg.cn",
   "quote_valid_count": 51,
-  "updated_at": "2026-08-29 05:57:05",
+  "updated_at": "2026-08-31 09:04:30",
   "market_date": "2026-08-28",
   "index": {
     "close": 1.212,
@@ -510,10 +510,10 @@
       "mom": 0.309,
       "vol": 26.803,
       "score": 83,
-      "div_yield": 12.821,
-      "div_ttm": 5.0,
+      "div_yield": 7.692,
+      "div_ttm": 3.0,
       "div_3y_avg_yield": 6.126,
-      "div_yield_premium": 6.695,
+      "div_yield_premium": 1.566,
       "div_years": [
         {
           "year": 2025,
