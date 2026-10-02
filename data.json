@@ -7,7 +7,7 @@
   "dividend_source": "Yahoo per-ticker corporate actions",
   "realtime_source": "Tencent Finance qt.gtimg.cn",
   "quote_valid_count": 51,
-  "updated_at": "2026-10-01 21:57:27",
+  "updated_at": "2026-10-02 21:09:51",
   "market_date": "2026-09-30",
   "index": {
     "close": 1.212,
